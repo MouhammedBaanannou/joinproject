@@ -1,0 +1,88 @@
+// ─── Sensor DB — MySQL (shared sensor database) ────────────────────────────
+// Generate: npm run generate:sensor
+// Migrate:  npm run migrate:sensor
+
+generator sensorClient {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma-sensor"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("SENSOR_DATABASE_URL")
+}
+
+// ── Table: G7E_audiofiles ───────────────────────────────────────────────────
+model G7E_AudioFile {
+  id          Int      @id @default(autoincrement())
+  filename    String?  @db.VarChar(255)
+  minioBucket String?  @db.VarChar(100)
+  minioPath   String?  @db.VarChar(500)
+  fileSize    Int?
+  duration    Int?
+  uploadedAt  DateTime @default(now())
+
+  @@map("G7E_audiofiles")
+}
+
+// ── Table: imu_readings_g7b ─────────────────────────────────────────────────
+// IMU sensor readings — accelerometer, gyroscope, orientation + state machine
+model ImuReading {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime
+  accX      Float    @map("acc_x")
+  accY      Float    @map("acc_y")
+  accZ      Float    @map("acc_z")
+  gyroX     Float    @map("gyro_x")
+  gyroY     Float    @map("gyro_y")
+  gyroZ     Float    @map("gyro_z")
+  roll      Float
+  pitch     Float
+  dRoll     Float    @map("d_roll")
+  dPitch    Float    @map("d_pitch")
+  vibCount  Int      @default(0) @map("vib_count") @db.UnsignedSmallInt
+  state     String   @default("IDLE") // enum: IDLE | ANGLE_CHANGE | VIBRATION | COLLISION
+
+  @@map("imu_readings_g7b")
+}
+
+// ── Table: gas_measures_g7a ─────────────────────────────────────────────────
+// Gas sensor readings — danger level, temperature, humidity
+model GasMeasure {
+  id          Int       @id @default(autoincrement())
+  sensorName  String    @map("sensor_name") @db.VarChar(100)
+  gasType     String    @map("gas_type") @db.VarChar(100)
+  gasValue    Float     @map("gas_value")
+  humidity    Float?
+  temperature Float?
+  dangerLevel Int       @map("danger_level") // 0 = safe, 1 = danger
+  createdAt   DateTime? @default(now()) @map("created_at")
+
+  @@map("gas_measures_g7a")
+}
+
+// ── Table: historique_capteur_g7b_recul ─────────────────────────────────────
+// Ultrasonic/proximity sensor history (G7B — recul/reverse distance)
+model CapteurReculHistory {
+  id            Int       @id @default(autoincrement())
+  valeurBrute   Int       @map("valeur_brute")
+  distanceCm    String    @map("distance_cm") @db.VarChar(10)
+  statut        String    @db.VarChar(50)
+  dateEvenement DateTime? @default(now()) @map("date_evenement")
+
+  @@map("historique_capteur_g7b_recul")
+}
+
+// ── Table: mesures_capteurs_g7c ─────────────────────────────────────────────
+// Multi-sensor readings — distance, humidity, GPS coordinates, altitude
+model MesureCapteur {
+  id                 Int       @id @default(autoincrement())
+  dateEnregistrement DateTime? @default(now()) @map("date_enregistrement")
+  distanceCm         Float?    @map("distance_cm")
+  humiditePourcent   Float?    @map("humidite_pourcent")
+  latitude           Float?    @db.Double
+  longitude          Float?    @db.Double
+  altitude           Float?
+
+  @@map("mesures_capteurs_g7c")
+}

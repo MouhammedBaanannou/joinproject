@@ -1,7 +1,13 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
-export default function Home() {
-  return (
-    <div>this is the home page </div>
-  );
+export default async function Home() {
+  const session = await auth();
+
+  // Logged in → dashboard, otherwise → login
+  if (session?.user) {
+    redirect("/dashboard");
+  } else {
+    redirect("/login");
+  }
 }

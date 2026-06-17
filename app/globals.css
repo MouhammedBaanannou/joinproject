@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800;900&display=swap');
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #ffffff;
@@ -8,19 +11,134 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* ── light theme tokens ── */
+  --color-rover-bg: #e8e6e1;
+  --color-rover-card: #f5f4f1;
+  --color-rover-border: #d4d2cd;
+  --color-rover-text: #1a1a1a;
+  --color-rover-muted: #6b6b6b;
+  --color-rover-accent: #2563eb;
+  --color-rover-accent-hover: #1d4ed8;
+  --color-rover-danger: #e53e3e;
+  --color-rover-success: #38b2ac;
+
+  /* ── dark theme tokens ── */
+  --color-dark-bg: #0f1117;
+  --color-dark-card: #1a1d27;
+  --color-dark-border: #2a2d3a;
+  --color-dark-text: #e4e4e7;
+  --color-dark-muted: #9ca3af;
+
+  /* ── fonts ── */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: 'Barlow Condensed', 'Inter', sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Keyframe animations
+   ═══════════════════════════════════════════════════════════ */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.7; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Pseudo-element utilities (can't do with Tailwind alone)
+   ═══════════════════════════════════════════════════════════ */
+.nav-underline {
+  position: relative;
+}
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-rover-accent);
+  transition: width 0.25s ease;
+}
+.nav-underline:hover::after {
+  width: 100%;
+}
+.nav-underline-active::after {
+  width: 100%;
+}
+
+/* ── intro card shimmer bar ── */
+.shimmer-bar {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-rover-accent), #60a5fa, var(--color-rover-accent));
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Light theme backgrounds
+   ═══════════════════════════════════════════════════════════ */
+.rover-bg {
+  background:
+    repeating-linear-gradient(
+      0deg, transparent, transparent 30px,
+      rgba(0,0,0,0.015) 30px, rgba(0,0,0,0.015) 31px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent, transparent 30px,
+      rgba(0,0,0,0.015) 30px, rgba(0,0,0,0.015) 31px
+    ),
+    linear-gradient(135deg, #e8e6e1 0%, #dfddd8 50%, #e8e6e1 100%);
+}
+
+.navbar-glass {
+  background: rgba(232, 230, 225, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Dark theme overrides
+   ═══════════════════════════════════════════════════════════ */
+.dark .rover-bg {
+  background:
+    repeating-linear-gradient(
+      0deg, transparent, transparent 30px,
+      rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 31px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent, transparent 30px,
+      rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 31px
+    ),
+    linear-gradient(135deg, #0f1117 0%, #131620 50%, #0f1117 100%);
+}
+
+.dark .navbar-glass {
+  background: rgba(15, 17, 23, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.dark .shimmer-bar::before {
+  background: linear-gradient(90deg, #60a5fa, #818cf8, #60a5fa);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
 }
