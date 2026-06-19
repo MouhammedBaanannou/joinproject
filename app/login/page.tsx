@@ -25,6 +25,10 @@ export default function LoginForm() {
         setError(result.error)
       }
     } catch (err: any) {
+      // NEXT_REDIRECT is thrown on successful login — it's not an error
+      if (err?.message?.includes("NEXT_REDIRECT")) {
+        return; // redirect is happening, do nothing
+      }
       console.error("Unexpected login error:", err)
       setError("An unexpected error occurred. Please try again.")
     } finally {
