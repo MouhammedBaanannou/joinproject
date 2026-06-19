@@ -43,12 +43,6 @@ export async function signOutAction() {
 
 import { signIn, signOut } from "@/auth"
 import { AuthError } from "next-auth"
-import { cookies } from "next/headers"
-
-const isProd = process.env.NODE_ENV === "production"
-const CALLBACK_COOKIE = isProd
-  ? "__Secure-authjs.callback-url"
-  : "authjs.callback-url"
 
 export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string
@@ -67,12 +61,6 @@ export async function signInAction(formData: FormData) {
       password,
       redirect: false,
     })
-
-    // Clear any stale callback-url cookie. If it contains a double-encoded
-    // URL (e.g. /login?callbackUrl=...) Auth.js's assertConfig will reject
-    // the session read silently on every protected page, causing a redirect loop.
-    const cookieStore = await cookies()
-    cookieStore.delete(CALLBACK_COOKIE)
 
     return { success: true }
   } catch (error) {
@@ -97,4 +85,4 @@ export async function signInAction(formData: FormData) {
 export async function signOutAction() {
   await signOut({ redirectTo: "/" })
 }
->>>>>>> dd53cf93bf9b24d56cfb7cac30462492b4b752e7
+

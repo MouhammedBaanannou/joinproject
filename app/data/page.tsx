@@ -1,6 +1,8 @@
 import DataClient from "./DataClient";
 
-// Auth gating is handled by proxy.ts
-export default function DataPage() {
+export const dynamic = "force-dynamic";
+
+export default async function DataPage() {
   return <DataClient />;
 }
+
