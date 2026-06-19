@@ -16,20 +16,17 @@ export default function LoginForm() {
     const formData = new FormData(e.currentTarget)
 
     try {
+      // On success the server action throws NEXT_REDIRECT, which Next.js
+      // intercepts to navigate the browser to /dashboard (cookie included).
+      // We only reach the lines below on auth failure.
       const result = await signInAction(formData)
 
       if (result?.error) {
         setError(result.error)
-      } else if (result?.success) {
-        // Hard navigation ensures a full page load where the browser
-        // sends the session cookie in the request headers.
-        // Client-side navigation (router.push) doesn't reliably do this.
-        window.location.href = "/dashboard"
-        return // Don't clear loading state — page is navigating away
       }
-    } catch (err: any) {
-      console.error("Unexpected login error:", err)
-      setError("An unexpected error occurred. Please try again.")
+    } catch {
+      // NEXT_REDIRECT surfaces here as an error — this is normal.
+      // Next.js will handle the navigation; nothing to do.
     } finally {
       setIsLoading(false)
     }

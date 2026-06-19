@@ -1,15 +1,14 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import AccountClient from "./AccountClient";
 
-export const dynamic = "force-dynamic";
-
+// Auth gating is handled by proxy.ts.
+// We still call auth() here to pass user data to the client component.
 export default async function AccountPage() {
   const session = await auth();
 
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  return <AccountClient user={session.user} />;
+  return (
+    <AccountClient
+      user={session?.user ?? { name: null, email: null, image: null }}
+    />
+  );
 }

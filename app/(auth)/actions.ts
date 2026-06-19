@@ -12,15 +12,14 @@ export async function signInAction(formData: FormData) {
   }
 
   try {
-    // Use redirect: false so NextAuth authenticates and sets the cookie
-    // without throwing NEXT_REDIRECT. We return success to the client
-    // which then does a hard navigation (window.location.href).
+    // On success NextAuth sets the session cookie AND throws NEXT_REDIRECT.
+    // We MUST let NEXT_REDIRECT propagate — catching it would strip the
+    // Set-Cookie header from the response, leaving the browser without a token.
     await signIn("credentials", {
       email,
       password,
-      redirect: false,
+      redirectTo: "/dashboard",
     })
-    return { success: true }
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -30,16 +29,11 @@ export async function signInAction(formData: FormData) {
           return { error: "Something went wrong" }
       }
     }
-    // NextAuth may still throw NEXT_REDIRECT even with redirect:false.
-    // If so, the cookie was already set — treat it as success.
-    const digest = (error as any)?.digest
-    if (typeof digest === "string" && digest.startsWith("NEXT_REDIRECT")) {
-      return { success: true }
-    }
+    // Re-throw everything else (including NEXT_REDIRECT).
     throw error
   }
 }
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/" })
-}
+}
