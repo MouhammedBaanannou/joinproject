@@ -7,7 +7,6 @@ import { useTheme } from "./ThemeProvider";
 const navLinks = [
   { label: "HOME", href: "/dashboard" },
   { label: "SENSORS", href: "/sensors" },
-  { label: "DATA", href: "/data" },
   { label: "ACCOUNT", href: "/account" },
 ];
 
