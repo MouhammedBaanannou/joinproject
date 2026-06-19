@@ -183,7 +183,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\HAMMA\\Desktop\\joinproject\\app\\generated\\prisma-auth",
+      "value": "C:\\Users\\pc\\dev\\joinproject\\app\\generated\\prisma-auth",
       "fromEnvVar": null
     },
     "config": {
@@ -197,7 +197,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\HAMMA\\Desktop\\joinproject\\prisma\\auth.prisma",
+    "sourceFilePath": "C:\\Users\\pc\\dev\\joinproject\\prisma\\auth.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
