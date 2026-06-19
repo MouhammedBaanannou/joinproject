@@ -198,7 +198,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\HAMMA\\Desktop\\joinproject\\app\\generated\\prisma-sensor",
+      "value": "C:\\Users\\pc\\dev\\joinproject\\app\\generated\\prisma-sensor",
       "fromEnvVar": null
     },
     "config": {
@@ -216,7 +216,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\HAMMA\\Desktop\\joinproject\\prisma\\sensor.prisma",
+    "sourceFilePath": "C:\\Users\\pc\\dev\\joinproject\\prisma\\sensor.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
