@@ -405,25 +405,39 @@ export default function SensorsClient() {
                   <table className="w-full border-collapse text-[0.82rem]">
                     <thead>
                       <tr>
-                        {["ID", "FILENAME", "BUCKET", "PATH", "SIZE", "DURATION", "UPLOADED"].map((h) => (
+                        {["", "ID", "FILENAME", "BUCKET", "SIZE", "DURATION", "UPLOADED"].map((h) => (
                           <th key={h} className="font-display font-bold text-[0.72rem] tracking-[0.08em] text-[#555] dark:text-dark-muted uppercase text-left px-5 py-3.5 border-b-2 border-rover-border dark:border-dark-border bg-black/[0.02] dark:bg-white/[0.02] whitespace-nowrap">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {audioData.map((a) => (
-                        <tr key={a.id} className="transition-colors hover:bg-rover-accent/[0.03] dark:hover:bg-rover-accent/[0.06] [&:last-child_td]:border-b-0">
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border font-mono text-[0.75rem] text-rover-muted dark:text-dark-muted">{a.id}</td>
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border font-medium text-rover-text dark:text-dark-text max-w-[200px] truncate">{a.filename ?? "—"}</td>
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border">
-                            <span className="px-2.5 py-1 rounded-md text-[0.68rem] font-bold bg-black/[0.04] text-[#555] dark:text-[#aaa] border border-black/[0.08] dark:bg-white/[0.04] dark:border-white/[0.08]">{a.minioBucket ?? "—"}</span>
-                          </td>
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border font-mono text-[0.72rem] text-rover-muted dark:text-dark-muted max-w-[240px] truncate">{a.minioPath ?? "—"}</td>
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border text-rover-muted dark:text-dark-muted">{fmtBytes(a.fileSize)}</td>
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border text-rover-muted dark:text-dark-muted">{a.duration != null ? `${a.duration}s` : "—"}</td>
-                          <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border text-[0.72rem] text-rover-muted dark:text-dark-muted whitespace-nowrap">{fmtDate(a.uploadedAt)}</td>
-                        </tr>
-                      ))}
+                      {audioData.map((a) => {
+                        const streamUrl = a.minioBucket && a.minioPath
+                          ? `/api/audio/stream?bucket=${encodeURIComponent(a.minioBucket)}&path=${encodeURIComponent(a.minioPath)}`
+                          : null;
+                        return (
+                          <tr key={a.id} className="transition-colors hover:bg-rover-accent/[0.03] dark:hover:bg-rover-accent/[0.06] [&:last-child_td]:border-b-0">
+                            {/* Play button */}
+                            <td className="px-3 py-3 border-b border-rover-border dark:border-dark-border">
+                              {streamUrl ? (
+                                <audio controls preload="none" className="h-8 w-[220px] min-w-[180px]" style={{ filter: "invert(0)" }}>
+                                  <source src={streamUrl} type="audio/wav" />
+                                </audio>
+                              ) : (
+                                <span className="text-rover-muted dark:text-dark-muted text-[0.7rem]">—</span>
+                              )}
+                            </td>
+                            <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border font-mono text-[0.75rem] text-rover-muted dark:text-dark-muted">{a.id}</td>
+                            <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border font-medium text-rover-text dark:text-dark-text max-w-[200px] truncate">{a.filename ?? "—"}</td>
+                            <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border">
+                              <span className="px-2.5 py-1 rounded-md text-[0.68rem] font-bold bg-black/[0.04] text-[#555] dark:text-[#aaa] border border-black/[0.08] dark:bg-white/[0.04] dark:border-white/[0.08]">{a.minioBucket ?? "—"}</span>
+                            </td>
+                            <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border text-rover-muted dark:text-dark-muted">{fmtBytes(a.fileSize)}</td>
+                            <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border text-rover-muted dark:text-dark-muted">{a.duration != null ? `${a.duration}s` : "—"}</td>
+                            <td className="px-5 py-3 border-b border-rover-border dark:border-dark-border text-[0.72rem] text-rover-muted dark:text-dark-muted whitespace-nowrap">{fmtDate(a.uploadedAt)}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}

@@ -1,12 +1,7 @@
 import { NextRequest } from "next/server"
-import { auth } from "@/auth"
 import { prismaSensor } from "@/lib/prisma-sensor"
 
 export async function GET(request: NextRequest) {
-  const session = await auth()
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
-  }
 
   const { searchParams } = request.nextUrl
   const page  = Math.max(1, parseInt(searchParams.get("page")  ?? "1"))

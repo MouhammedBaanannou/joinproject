@@ -1,0 +1,83 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model G7E_User {
+  id            String        @id @default(cuid())
+  name          String?       // doit être nullable pour OAuth
+  email         String?       @unique // nullable pour OAuth
+  emailVerified DateTime?     // DateTime? pas Boolean — NextAuth le set automatiquement
+  image         String?
+  password      String?       // nullable car OAuth users n'ont pas de password
+  username      String?       @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt // @updatedAt plutôt que @default(now())
+  
+  // Relations NextAuth — noms exacts requis
+  sessions      G7E_Session[]
+  accounts      G7E_Account[]
+  
+
+
+  @@map("G7E_user")
+}
+model G7E_AudioFile {
+  id          Int      @id @default(autoincrement())
+  filename    String?  @db.VarChar(255)
+  minioBucket String?  @db.VarChar(100)
+  minioPath   String?  @db.VarChar(500)
+  fileSize    Int?
+  duration    Int?
+  uploadedAt  DateTime @default(now())
+
+  @@map("G7E_audio_files")
+}
+
+model G7E_Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user G7E_User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("G7E_account")
+}
+
+model G7E_Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user G7E_User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("G7E_session")
+}
+
+model G7E_VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("G7E_verification_token")
+}
