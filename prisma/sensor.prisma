@@ -3,8 +3,9 @@
 // Migrate:  npm run migrate:sensor
 
 generator sensorClient {
-  provider = "prisma-client-js"
-  output   = "../app/generated/prisma-sensor"
+  provider      = "prisma-client-js"
+  output        = "../app/generated/prisma-sensor"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
