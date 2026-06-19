@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
 
+const isProd = process.env.NODE_ENV === "production"
+const SESSION_COOKIE = isProd
+  ? "__Secure-authjs.session-token"
+  : "authjs.session-token"
+const CALLBACK_COOKIE = isProd
+  ? "__Secure-authjs.callback-url"
+  : "authjs.callback-url"
+
 // Next.js 16 proxy — runs on Node.js runtime (no Edge restrictions).
 export default async function proxy(request: NextRequest) {
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
-    // NextAuth v5 uses __Secure- prefix in production; getToken needs salt
-    salt: process.env.NODE_ENV === "production"
-      ? "__Secure-authjs.session-token"
-      : "authjs.session-token",
+    salt: SESSION_COOKIE,
   })
 
   const isLoggedIn = !!token
@@ -20,14 +25,20 @@ export default async function proxy(request: NextRequest) {
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p))
 
   if (isProtected && !isLoggedIn) {
+    // Let Auth.js set the callbackUrl cookie itself; we just redirect to /login.
+    // Manually appending callbackUrl here causes the cookie to double-encode
+    // and Auth.js's assertConfig then rejects the session read (InvalidCallbackUrl).
     const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("callbackUrl", request.url)
     return NextResponse.redirect(loginUrl)
   }
 
   // ── Already logged in — bounce away from auth pages ──────────────────────
   if (pathname.startsWith("/login") && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    const res = NextResponse.redirect(new URL("/dashboard", request.url))
+    // Clear any stale callback-url cookie so Auth.js does not pick up a
+    // double-encoded value on the next session read and silently reject it.
+    res.cookies.delete(CALLBACK_COOKIE)
+    return res
   }
 
   return NextResponse.next()
