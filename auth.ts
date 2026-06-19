@@ -5,6 +5,7 @@ import { prismaAuth } from "@/lib/prisma-auth"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
+  debug: true,
   // No PrismaAdapter needed — we use JWT sessions + Credentials only.
   // The adapter is only required for OAuth providers or database sessions.
 
