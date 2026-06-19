@@ -4,6 +4,7 @@ import { signIn, signOut } from "@/auth"
 import { AuthError } from "next-auth"
 import bcrypt from "bcryptjs"
 import { prismaAuth } from "@/lib/prisma-auth"
+import { cookies } from "next/headers"
 
 export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string
@@ -100,5 +101,11 @@ export async function signUpAction(formData: FormData) {
 }
 
 export async function signOutAction() {
-  await signOut({ redirectTo: "/" })
+  const cookieStore = await cookies()
+  cookieStore.delete("__Secure-next-auth.session-token")
+  cookieStore.delete("next-auth.session-token")
+  cookieStore.delete("__Secure-authjs.session-token")
+  cookieStore.delete("authjs.session-token")
+
+  await signOut({ redirect: false })
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import { signOutAction } from "../(auth)/actions";
 
@@ -12,6 +13,19 @@ interface AccountProps {
 }
 
 export default function AccountClient({ user }: AccountProps) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleSignOut = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingOut(true);
+    try {
+      await signOutAction();
+      window.location.href = "/login";
+    } catch {
+      setIsLoggingOut(false);
+    }
+  };
+
   const initials = (user.name || user.email || "U")
     .split(" ")
     .map((w) => w[0])
@@ -106,12 +120,13 @@ export default function AccountClient({ user }: AccountProps) {
               ACTIONS
             </h2>
             <div className="flex gap-3">
-              <form action={signOutAction}>
+              <form onSubmit={handleSignOut}>
                 <button
                   type="submit"
-                  className="font-display font-bold text-[0.74rem] tracking-[0.06em] px-4 py-1.5 rounded border-[1.5px] border-rover-danger text-rover-danger bg-transparent uppercase cursor-pointer transition-all hover:bg-rover-danger hover:text-white"
+                  disabled={isLoggingOut}
+                  className="font-display font-bold text-[0.74rem] tracking-[0.06em] px-4 py-1.5 rounded border-[1.5px] border-rover-danger text-rover-danger bg-transparent uppercase cursor-pointer transition-all hover:bg-rover-danger hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  SIGN OUT
+                  {isLoggingOut ? "SIGNING OUT..." : "SIGN OUT"}
                 </button>
               </form>
             </div>
