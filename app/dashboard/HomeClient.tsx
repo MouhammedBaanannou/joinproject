@@ -55,7 +55,8 @@ interface ImuReading {
 }
 
 /* ── Hook: fetch API data with optional polling ─────────────── */
-const DASHBOARD_POLL_MS = process.env.NODE_ENV === "development" ? 5_000 : 30_000;
+const DASHBOARD_POLL_MS =
+  process.env.NODE_ENV === "development" ? 5_000 : 8_000;
 
 function useApi<T>(url: string, refreshInterval = DASHBOARD_POLL_MS) {
   const [data, setData]       = useState<T[]>([]);

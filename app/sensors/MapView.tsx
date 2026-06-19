@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 
@@ -54,14 +54,19 @@ interface MapViewProps {
   points: GpsPoint[];
 }
 
-// Auto-fit bounds when data changes
-function FitBounds({ points }: { points: GpsPoint[] }) {
+// Auto-fit bounds or pan to active position when data/modes change
+function FitBounds({ points, showHistory }: { points: GpsPoint[]; showHistory: boolean }) {
   const map = useMap();
   useEffect(() => {
     if (points.length === 0) return;
-    const bounds = L.latLngBounds(points.map((p) => [p.latitude, p.longitude]));
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
-  }, [map, points]);
+    if (showHistory) {
+      const bounds = L.latLngBounds(points.map((p) => [p.latitude, p.longitude]));
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+    } else {
+      const latest = points[0];
+      map.setView([latest.latitude, latest.longitude], 16);
+    }
+  }, [map, points, showHistory]);
   return null;
 }
 
@@ -73,6 +78,9 @@ const fmtDate = (iso: string | null) => {
 };
 
 export default function MapView({ points }: MapViewProps) {
+  const [showPath, setShowPath] = useState(true);
+  const [showHistory, setShowHistory] = useState(true);
+
   if (points.length === 0) {
     return (
       <div className="flex items-center justify-center h-[400px] text-rover-muted dark:text-dark-muted italic text-sm">
@@ -87,7 +95,32 @@ export default function MapView({ points }: MapViewProps) {
   const path: [number, number][] = validPoints.map((p) => [p.latitude, p.longitude]);
 
   return (
-    <div className="w-full h-[420px] rounded-b-[10px] overflow-hidden">
+    <div className="w-full h-[420px] rounded-b-[10px] overflow-hidden relative">
+      {/* Floating Control Panel */}
+      <div className="absolute top-3 right-3 z-[1000] bg-white/90 dark:bg-[#1a1a1a]/95 backdrop-blur-sm border border-gray-200 dark:border-zinc-800 rounded-lg p-3.5 shadow-md text-xs font-semibold text-gray-700 dark:text-zinc-300 flex flex-col gap-2.5 select-none min-w-[150px]">
+        <div className="text-[0.62rem] font-bold tracking-[0.08em] uppercase text-gray-400 dark:text-zinc-500 mb-0.5">
+          Map Options
+        </div>
+        <label className="flex items-center gap-2 cursor-pointer hover:opacity-80">
+          <input
+            type="checkbox"
+            checked={showPath}
+            onChange={(e) => setShowPath(e.target.checked)}
+            className="rounded border-gray-300 text-black focus:ring-black dark:border-zinc-700 dark:bg-zinc-800 cursor-pointer"
+          />
+          Show Path History
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer hover:opacity-80">
+          <input
+            type="checkbox"
+            checked={showHistory}
+            onChange={(e) => setShowHistory(e.target.checked)}
+            className="rounded border-gray-300 text-black focus:ring-black dark:border-zinc-700 dark:bg-zinc-800 cursor-pointer"
+          />
+          Show All Markers
+        </label>
+      </div>
+
       <MapContainer
         center={center}
         zoom={15}
@@ -101,7 +134,7 @@ export default function MapView({ points }: MapViewProps) {
         />
 
         {/* Path line connecting all points */}
-        {path.length > 1 && (
+        {showPath && showHistory && path.length > 1 && (
           <Polyline
             positions={path}
             pathOptions={{ color: "#2563eb", weight: 2.5, opacity: 0.6, dashArray: "6 4" }}
@@ -109,7 +142,7 @@ export default function MapView({ points }: MapViewProps) {
         )}
 
         {/* All GPS markers */}
-        {validPoints.map((p, i) => (
+        {(showHistory ? validPoints : [latest]).map((p, i) => (
           <Marker
             key={p.id}
             position={[p.latitude, p.longitude]}
@@ -134,7 +167,7 @@ export default function MapView({ points }: MapViewProps) {
           </Marker>
         ))}
 
-        <FitBounds points={validPoints} />
+        <FitBounds points={validPoints} showHistory={showHistory} />
       </MapContainer>
     </div>
   );

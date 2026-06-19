@@ -125,7 +125,7 @@ function ToastStack({ toasts, onDismiss }: { toasts: AlarmToast[]; onDismiss: (i
 }
 
 /* ── Alarm polling ──────────────────────────────────────────────────────────── */
-const POLL_INTERVAL_MS = process.env.NODE_ENV === "development" ? 3_000 : 15_000;
+const POLL_INTERVAL_MS = process.env.NODE_ENV === "development" ? 3_000 : 7_000;
 
 export default function AlarmSystem() {
   const [toasts, setToasts] = useState<AlarmToast[]>([]);
