@@ -5,9 +5,6 @@ import { prismaAuth } from "@/lib/prisma-auth"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  debug: true,
-  // No PrismaAdapter needed — we use JWT sessions + Credentials only.
-  // The adapter is only required for OAuth providers or database sessions.
 
   providers: [
     Credentials({
@@ -18,32 +15,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        try {
-          console.log("[auth.ts] authorize: Querying user:", credentials.email);
-          const user = await prismaAuth.user.findUnique({
-            where: { email: credentials.email as string },
-          });
-          console.log("[auth.ts] authorize: Found user:", !!user);
+        const user = await prismaAuth.user.findUnique({
+          where: { email: credentials.email as string },
+        })
 
-          if (!user || !user.password) return null;
+        if (!user || !user.password) return null
 
-          const valid = await bcrypt.compare(
-            credentials.password as string,
-            user.password
-          );
-          console.log("[auth.ts] authorize: Password valid:", valid);
+        const valid = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        )
 
-          if (!valid) return null;
+        if (!valid) return null
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image,
-          };
-        } catch (err: any) {
-          console.error("[auth.ts] authorize: DB or bcrypt error:", err);
-          throw err;
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
         }
       },
     }),

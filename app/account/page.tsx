@@ -1,14 +1,14 @@
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/session";
 import AccountClient from "./AccountClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccountPage() {
-  const session = await getSession();
+  const session = await auth();
 
   if (!session?.user) {
-    redirect("/login?callbackUrl=/account");
+    redirect("/login");
   }
 
   return <AccountClient user={session.user} />;
